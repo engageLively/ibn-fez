@@ -18,8 +18,9 @@ BitcoinTrackerActor's history is a list of {date<milliseconds>, and amount<dolla
 
 class CanvasActor{
     setup() {
+        this.listen("drawPointActor", "drawPoint")
         
-        this.future(1000).step()
+        // this.future(1000).step()
     }
 
     step() {
@@ -28,14 +29,39 @@ class CanvasActor{
         this.future(50).step()
 
     }
+
+    drawPoint(data) {
+        let {viewId, x, y} = data;
+        this.say("drawPointPawn", data)
+    }
 }
 
 class CanvasPawn {
 
     setup() {
         this.listen("drawAll", "drawAll")
+        this.listen("drawPointPawn", "drawPoint")
         this.index = 0;
         this.angle = 0;
+        this.addEventListener('pointerDown', 'pointerDown')
+        this.clear('black')
+        this.texture.needsUpdate = true;
+    }
+
+    pointerDown(evt) {
+        this.say("drawPointActor", {viewId: this.viewId, x: evt.xy[0], y:evt.xy[1]})
+    }
+
+    drawPoint(data) {
+        let {viewId, x, y} = data;
+        let ctx = this.canvas.getContext("2d");
+        ctx.beginPath();
+        ctx.rect(x, y, 5, 5);
+        ctx.fillStyle = ctx.strokeStyle = 'white';
+        ctx.stroke();
+        ctx.fill();
+        ctx.closePath();
+        this.texture.needsUpdate = true;
     }
 
 

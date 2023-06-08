@@ -2,25 +2,24 @@
 // https://croquet.io
 // info@croquet.io
 
-/*
 
-This module manages a list of recent values from a bitcoin position
-server. It is used with the Elected module, so that one of
-participants is chosen to fetch values.
-
-*/
-
-/*
-
-BitcoinTrackerActor's history is a list of {date<milliseconds>, and amount<dollar>}
-
-*/
 
 class CanvasActor{
     setup() {
         this.listen("drawPointActor", "drawPoint")
+        this.subscribe("global", "drawTextActor", "drawText")
+        // this.future(1000).drawText();
         
         // this.future(1000).step()
+    }
+
+    drawText(data) {
+        let {name, text} = data;
+        if (name != this._name) {
+            // not for us, return
+            return
+        }
+        this.say("drawTextPawn", text)
     }
 
     step() {
@@ -41,16 +40,17 @@ class CanvasPawn {
     setup() {
         this.listen("drawAll", "drawAll")
         this.listen("drawPointPawn", "drawPoint")
+        this.listen("drawTextPawn", "drawText")
         this.index = 0;
         this.angle = 0;
-        this.addEventListener('pointerDown', 'pointerDown')
+        // this.addEventListener('pointerDown', 'pointerDown')
         this.clear('black')
         this.texture.needsUpdate = true;
     }
 
-    pointerDown(evt) {
+    /* pointerDown(evt) {
         this.say("drawPointActor", {viewId: this.viewId, x: evt.xy[0], y:evt.xy[1]})
-    }
+    } */
 
     drawPoint(data) {
         let {viewId, x, y} = data;
@@ -62,6 +62,16 @@ class CanvasPawn {
         ctx.fill();
         ctx.closePath();
         this.texture.needsUpdate = true;
+    }
+
+    drawText(text) {
+        this.clear('black')
+        let ctx = this.canvas.getContext("2d");
+        ctx.font = "30px Arial";
+        ctx.fillStyle = 'white'
+        ctx.fillText(text, 10, 50);
+        this.texture.needsUpdate = true;
+
     }
 
 
@@ -85,6 +95,8 @@ class CanvasPawn {
 
     }
 
+    
+
     clear(fill) {
         let ctx = this.canvas.getContext("2d");
         // console.log(ctx)
@@ -105,6 +117,29 @@ class CanvasPawn {
     
 }
 
+class BuyActor {
+    setup() {
+        this.subscribe("global", "currentInventory", "storeInventory")
+        this.listen('purchaseRequested', 'buy')
+    }
+    storeInventory(name) {
+        this.currentInventory = name;
+    }
+    buy(name) {
+        this.publish("global", "buy", this.currentInventory)
+    }
+}
+
+class BuyPawn {
+    setup() {
+        this.addEventListener('pointerDown', 'pointerDown')
+    }
+    pointerDown() {
+        this.say('purchaseRequested')
+    }
+}
+
+
 
 
 export default {
@@ -113,6 +148,11 @@ export default {
             name: "Canvas",
             actorBehaviors: [CanvasActor],
             pawnBehaviors: [CanvasPawn],
+        },
+        {
+            name: 'Buy',
+            actorBehaviors: [BuyActor],
+            pawnBehaviors: [BuyPawn]
         }
     ]
 }

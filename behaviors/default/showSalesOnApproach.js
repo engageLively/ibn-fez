@@ -18,9 +18,28 @@ class ShowSalesOnApproach {
         console.log('Setup for card ' + this._cardData.name)
         this._dumpFields();
         this.salesCard = null;
+        this.goods = [
+            {name: "camel", quantity: 3, price: 250},
+            {name: "saddle", quantity: 20, price: 50},
+            {name: "blanket", quantity: 50, price: 10}
+        ]
+        this.showing = false;
+        this.avatarValue = {
+            camel: 0, saddle: 0, blanket: 0, shells:500
+        }
+        this.subscribe("global", "buy", "purchase")
 
         this.future(1000).step();
         // this.addEventListener('pointerDown', 'showDistance')
+    }
+
+    purchase(name) {
+        const purchased = this.goods.filter(good => good.name == name)[0]
+        this.goodsIndex = this.goods.indexOf(purchased)
+        purchased.quantity--;
+        this.avatarValue[name]++;
+        this.avatarValue.shells -= purchased.price
+        this.updateDisplay()
     }
 
     _loadFields() {
@@ -67,7 +86,7 @@ class ShowSalesOnApproach {
 
         const cards = this.queryCards();
         if (cards.length == 0) {
-            console.log("In AnimateOnApproach: no cards found")
+            console.log("In ShowSalesOnApproach: no cards found")
             return []
         }
         const avatars = cards.filter(a => a.playerId)
@@ -80,35 +99,79 @@ class ShowSalesOnApproach {
 
     
 
-    showCard() {
-        const salesCard = {
-            name: "salesCard",
-            translation: [2.22658000718942, -0.3207103775912594, -33.55194820630596],
-            rotation: [0, 0, 0, 1],
-            scale: [3, 3, 3],
-            type: "2d",
-            textureType: "canvas",
-            textureWidth: 1024,
-            textureHeight: 768,
-            width: 1,
-            height: 0.75,
-            // color: 0xffffff,
-            depth: 0.05,
-            cornerRadius: 0.1,
-            behaviorModules: ["Canvas"]
+    showCards() {
+        if (this.showing) {
+            return; // nothing to do
         }
-        if (this.salesCard) {
-            // already showing it, return
-            return
-        }
-        this.salesCard = this.createCard(salesCard)
+
+        const displayCards = [
+            {
+                name: "goodsCard",
+                translation: [2.22658000718942, -0.3207103775912594, -33.55194820630596],
+                behaviorModules: ["Canvas", "Buy"]
+            },
+            {
+                name: "avatarCard",
+                translation: [5.22658000718942, -0.3207103775912594, -33.55194820630596],
+                behaviorModules: ["Canvas"]
+            }
+        ]
+
+        const salesCards = displayCards.map(card => {
+            return {
+                name: card.name,
+                translation: card.translation,
+                behaviorModules: card.behaviorModules,
+                rotation: [0, 0, 0, 1],
+                scale: [3, 3, 3],
+                type: "2d",
+                textureType: "canvas",
+                textureWidth: 1024,
+                textureHeight: 768,
+                width: 1,
+                height: 0.75,
+                // color: 0xffffff,
+                depth: 0.05,
+                cornerRadius: 0.1,
+            }
+        })
+        
+        this.showing = true;
+        this.popupCards = salesCards.map(card => this.createCard(card))
+        this.goodsIndex = 0;
+        this.future(100).displayCardValues();
 
     }
 
-    removeCard() {
-        if (this.salesCard) {
-            this.salesCard.destroy();
-            this.salesCard = null;
+    displayCardValues() {
+        if (this.showing) { 
+            this.updateDisplay();
+            this.goodsIndex = (this.goodsIndex + 1) % this.goods.length;
+            this.future(5000).displayCardValues();
+        }
+
+    }
+
+    updateDisplay() {
+        this.publish("global", "drawTextActor", {
+            name: "goodsCard",
+            text: JSON.stringify(this.goods[this.goodsIndex])
+        })
+        this.publish("global", "currentInventory", this.goods[this.goodsIndex].name)
+        this.publish("global", "drawTextActor", {
+            name: "avatarCard",
+            text: JSON.stringify(this.avatarValue)
+        })
+
+    }
+
+    removeCards() {
+        if (this.showing) {
+            this.showing = false;
+            if (this.popupCards) {
+                this.popupCards.forEach(card => card.destroy())
+                this.popupCards = [];
+            }
         }
     }
 
@@ -120,9 +183,9 @@ class ShowSalesOnApproach {
             const minDistance = distances.slice(1).reduce((prev, cur) => Math.min(prev, cur), distances[0])
             // console.log(minDistance)
             if (minDistance < this.showSalesProximateDistance){
-                this.showCard();
+                this.showCards();
             } else {
-                this.removeCard()
+                this.removeCards()
                 
             }
             this.future(this.showSalesCheckInterval).step();

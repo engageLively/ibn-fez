@@ -44,9 +44,15 @@ class CanvasPawn {
         this.index = 0;
         this.angle = 0;
         // this.addEventListener('pointerDown', 'pointerDown')
-        this.clear('black')
+
+        this.image = new Image(820, 644)
+        this.image.src = 'https://matt.engageLively.com/assets/ITF/papyrus.jpg'
+        this.image.crossOrigin = 'Anonymous'
+        this.image.onload = _ => this.drawBackground();
         this.texture.needsUpdate = true;
     }
+
+  
 
     /* pointerDown(evt) {
         this.say("drawPointActor", {viewId: this.viewId, x: evt.xy[0], y:evt.xy[1]})
@@ -57,7 +63,7 @@ class CanvasPawn {
         let ctx = this.canvas.getContext("2d");
         ctx.beginPath();
         ctx.rect(x, y, 5, 5);
-        ctx.fillStyle = ctx.strokeStyle = 'white';
+        ctx.fillStyle = ctx.strokeStyle = 'black';
         ctx.stroke();
         ctx.fill();
         ctx.closePath();
@@ -65,11 +71,11 @@ class CanvasPawn {
     }
 
     drawText(text) {
-        this.clear('black')
+        this.drawBackground();
         let ctx = this.canvas.getContext("2d");
-        ctx.font = "30px Arial";
-        ctx.fillStyle = 'white'
-        ctx.fillText(text, 10, 50);
+        ctx.font = "60px Arial";
+        ctx.fillStyle = 'black'
+        ctx.fillText(text,80, 250);
         this.texture.needsUpdate = true;
 
     }
@@ -93,6 +99,14 @@ class CanvasPawn {
             
         }
 
+    }
+
+    drawBackground() {
+        const ctx = this.canvas.getContext("2d");
+        this.clear('white')
+       
+        ctx.drawImage(this.image, 50, 50, 820, 644);
+        this.texture.needsUpdate = true;
     }
 
     

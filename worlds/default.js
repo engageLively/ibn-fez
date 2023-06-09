@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "csmLights.js", "drawingCanvas.js", "showSalesOnApproach.js", 'text3D.js'
+        "ambientSound.js", "csmLights.js", "drawingCanvas.js", "showSalesOnApproach.js", 'text3D.js'
     ];
 
     const frameColor = 0x888888;
@@ -454,6 +454,22 @@ export function init(Constants) {
                 showSalesProximateDistance: 150
              }
           },
+          {
+            card: {
+                name: "ambient sound",
+            // translation: [0, 0, -2],
+            // layers: ["pointer"],
+                type: "object",
+                behaviorModules: ["AmbientSound"],
+                dataType: "mp3",
+                dataLocation: "./assets/sounds/FemaleCamelMerchant.mp3",
+                // textureLocation: "./assets/images/mythos.png",
+                loop: false,
+                volume: 0.2,
+                maxVolume: 0.3
+            },
+            id: "ambientSound"
+        },
          {
              card: {
                 dataLocation: "3BmIM8A_2IJqZyB2i4BImZ1Crtnl4MJ_7MzSxiLfJIdEKjY2MjF4bW0kKy4nMWw3MWwhMC0zNyc2bCstbTdtLCsNMAkEdHdwKgwFFywRcDIsNgl0BhMQcAszcG0hLS9sNy42KzErL2wuKywmI2wgJzAsIzAmbC8rITAtNCcwMSdtJwkxLCEXJzQhEhghIwE6G3sRJxYKGywkMBUFDTc3OwYtIREhCQ97Li50F20mIzYjbRMKLycNKHUhJXoxBHADKQgSLg50N3sHNiELFyN1FCUEMhQHKCVzBRY4KDU",

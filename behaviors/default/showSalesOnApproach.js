@@ -9,6 +9,8 @@ class ShowSalesOnApproach {
     _setField(field, defaultValue) {
         const fieldSupplied = this._cardData[field];
         this[field] = fieldSupplied?this._cardData[field]:defaultValue;
+        
+        this.visited = [];
     }
     
 
@@ -215,8 +217,12 @@ class ShowSalesOnApproach {
             // console.log(minDistance)
             if (minDistance < this.showSalesProximateDistance){
                 this.showCards();
+                //console.log(`showSalesOnApproach, avatars nearby, publishing (global, startMusic)`)
+                this.publish("global", "startMusic");
             } else {
                 this.removeCards()
+                // console.log(`showSalesOnApproach, no avatars nearby, publishing  (global, stopMusic )`)
+                this.publish("global", "stopMusic");
                 
             }
             this.future(this.showSalesCheckInterval).step();
@@ -224,6 +230,8 @@ class ShowSalesOnApproach {
             
         } else {
             this._cardData.animationClipIndex = this.animationDistantAnimationClip;
+            // this.publish("global", "stopMusic");
+           
         }
     }
 

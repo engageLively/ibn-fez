@@ -14,12 +14,12 @@ class CanvasActor{
     }
 
     drawText(data) {
-        let {name, text} = data;
+        let {name, lines} = data;
         if (name != this._name) {
             // not for us, return
             return
         }
-        this.say("drawTextPawn", text)
+        this.say("drawTextPawn", lines)
     }
 
     step() {
@@ -70,12 +70,19 @@ class CanvasPawn {
         this.texture.needsUpdate = true;
     }
 
-    drawText(text) {
+    drawText(lines) {
         this.drawBackground();
+        this.future(20).writeText(lines); // make sure we write the text on top of the background
+    }
+
+    writeText(lines) {
         let ctx = this.canvas.getContext("2d");
         ctx.font = "60px Arial";
         ctx.fillStyle = 'black'
-        ctx.fillText(text,80, 250);
+        let lineHeight = 70, firstLine = 150;
+        lines.forEach((line, i) => {
+            ctx.fillText(line, 80,  firstLine + i * lineHeight)
+        })
         this.texture.needsUpdate = true;
 
     }
@@ -105,7 +112,7 @@ class CanvasPawn {
         const ctx = this.canvas.getContext("2d");
         this.clear('white')
        
-        ctx.drawImage(this.image, 50, 50, 820, 644);
+        ctx.drawImage(this.image, 0, 0);
         this.texture.needsUpdate = true;
     }
 
@@ -133,14 +140,11 @@ class CanvasPawn {
 
 class BuyActor {
     setup() {
-        this.subscribe("global", "currentInventory", "storeInventory")
         this.listen('purchaseRequested', 'buy')
     }
-    storeInventory(name) {
-        this.currentInventory = name;
-    }
+    
     buy(name) {
-        this.publish("global", "buy", this.currentInventory)
+        this.publish("global", "buy", this.name)
     }
 }
 

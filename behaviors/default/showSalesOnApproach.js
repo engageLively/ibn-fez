@@ -19,9 +19,9 @@ class ShowSalesOnApproach {
         this._dumpFields();
         this.salesCard = null;
         this.goods = [
-            {name: "camel", quantity: 3, price: 250},
-            {name: "saddle", quantity: 20, price: 50},
-            {name: "blanket", quantity: 50, price: 10}
+            {item: "camel", quantity: 3, price: 250},
+            {item: "saddle", quantity: 20, price: 50},
+            {item: "blanket", quantity: 50, price: 10}
         ]
         this.showing = false;
         this.avatarValue = {
@@ -34,7 +34,7 @@ class ShowSalesOnApproach {
     }
 
     purchase(name) {
-        const purchased = this.goods.filter(good => good.name == name)[0]
+        const purchased = this.goods.filter(good => good.item == name)[0]
         this.goodsIndex = this.goods.indexOf(purchased)
         purchased.quantity--;
         this.avatarValue[name]++;
@@ -106,9 +106,24 @@ class ShowSalesOnApproach {
 
         const displayCards = [
             {
-                name: "goodsCard",
+                name: "camel",
+                translation: [2.22658000718942, 4.3207103775912594, -33.55194820630596],
+                behaviorModules: ["Canvas", "Buy"],
+                inventory: 'camel'
+            },
+            {
+                name: "saddle",
+                translation: [2.22658000718942, 2.3207103775912594, -33.55194820630596],
+                behaviorModules: ["Canvas", "Buy"],
+                inventory: 'saddle',
+
+            },
+            {
+                name: "blanket",
                 translation: [2.22658000718942, -0.3207103775912594, -33.55194820630596],
-                behaviorModules: ["Canvas", "Buy"]
+                behaviorModules: ["Canvas", "Buy"],
+                inventory: 'blanket',
+
             },
             {
                 name: "avatarCard",
@@ -126,10 +141,14 @@ class ShowSalesOnApproach {
                 scale: [3, 3, 3],
                 type: "2d",
                 textureType: "canvas",
-                textureWidth: 1024,
-                textureHeight: 768,
+                textureWidth: 820,
+                textureHeight: 644,
+                /* type: "2d",
+                textureType: "image",
+                textureLocation: "./assets/images/papyrus.jpg",
+                fontSize: 30,
                 width: 1,
-                height: 0.75,
+                height: 0.75, */
                 // color: 0xffffff,
                 depth: 0.05,
                 cornerRadius: 0.1,
@@ -138,30 +157,42 @@ class ShowSalesOnApproach {
         
         this.showing = true;
         this.popupCards = salesCards.map(card => this.createCard(card))
-        this.goodsIndex = 0;
-        this.future(100).displayCardValues();
+        this.cardsByName = {}
+        this.popupCards.forEach(card => {
+            this.cardsByName[card.name] = card
+        })
+        this.future(100).updateDisplay();
 
     }
 
     displayCardValues() {
         if (this.showing) { 
-            this.updateDisplay();
-            this.goodsIndex = (this.goodsIndex + 1) % this.goods.length;
             this.future(5000).displayCardValues();
         }
 
     }
 
+    _makeLine(product, key) {
+        return `${key}: ${product[key]}`;
+    }
+
+    _convertToLines(product) {
+         
+        return [product.item, this._makeLine(product, 'quantity'), this._makeLine(product, 'price')]
+    }
+
     updateDisplay() {
-        this.publish("global", "drawTextActor", {
-            name: "goodsCard",
-            text: JSON.stringify(this.goods[this.goodsIndex])
+        this.goods.forEach(good => {
+            // this.cardsByName[good.item]._cardData.text=this._convertToLines(good).join('\n')
+            this.publish("global", "drawTextActor", {name: good.item, lines: this._convertToLines(good)});
         })
-        this.publish("global", "currentInventory", this.goods[this.goodsIndex].name)
+        const keys = ['camel', 'saddle', 'blanket', 'shells']
+        // this.cardsByName.avatarCard._cardData.text = keys.map(key =>  this._makeLine(this.avatarValue, key)).join('\n')
         this.publish("global", "drawTextActor", {
             name: "avatarCard",
-            text: JSON.stringify(this.avatarValue)
+            lines: keys.map(key =>  this._makeLine(this.avatarValue, key))
         })
+       // this.say('updateShape')
 
     }
 

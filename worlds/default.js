@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "csmLights.js", "drawingCanvas.js", "showSalesOnApproach.js"
+        "csmLights.js", "drawingCanvas.js", "showSalesOnApproach.js", 'text3D.js'
     ];
 
     const frameColor = 0x888888;
@@ -451,7 +451,7 @@ export function init(Constants) {
                 translation: [0, -1.5432917458337432, -32.784419251622566],
                 type: "3d",
                 behaviorModules: ['ShowSalesOnApproach'],
-                showSalesProximateDistance: 40
+                showSalesProximateDistance: 150
              }
           },
          {

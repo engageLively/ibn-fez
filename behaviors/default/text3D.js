@@ -24,13 +24,14 @@ class Text3DPawn {
     generateText3D() {
         if (this.textMesh) {this.teardown();}
         let THREE = Microverse.THREE;
-        let text = this.actor._cardData.text || 'MICROVERSE';
+        let text = this.actor._cardData.text || 'MICRO\nVERSE';
         let color = this.actor._cardData.color || 0xaaffaa;
         let frameColor = this.actor._cardData.frameColor || color;
         let font = this.actor._cardData.fFont || 'helvetiker'; // 'helvetiker', 'optimer', 'gentilis', 'droid/droid_sans', 'droid/droid_serif'
         let weight = this.actor._cardData.weight || 'regular';
         let depth = this.actor._cardData.depth || 0.05; // THREE.TextGeometry refers to this as height
         let height = this.actor._cardData.height || 0.25; // THREE.TextGeometry refers to this a size
+        let fontSize = this.actor._cardData.fontSize || height
         let curveSegments = this.actor._cardData.curveSegments || 4;
         let bevelThickness = this.actor._cardData.bevelThickness || 0.01;
         let bevelSize = this.actor._cardData.bevelSize || 0.01;
@@ -49,7 +50,7 @@ class Text3DPawn {
             let textGeo = new THREE.TextGeometry( text, {
                 font: font,
 
-                size: height, // Croquet refers to this as height
+                size: 0.01, // Croquet refers to this as height
                 height: depth, // Croquet refers to this as depth
                 curveSegments: curveSegments,
 
@@ -81,11 +82,22 @@ class Text3DPawn {
     }
 }
 
+class Text3DActor {
+    setup() {
+        this.subscribe('global', 'updateShape', 'updateShape');
+    }
+
+    updateShape() {
+        this.say('updateShape');
+    }
+}
+
 export default {
     modules: [
         {
             name: "Text3D",
-            pawnBehaviors: [Text3DPawn]
+            pawnBehaviors: [Text3DPawn],
+            actorBehaviors: [Text3DActor]
         }
     ]
 }

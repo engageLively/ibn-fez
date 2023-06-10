@@ -44,12 +44,24 @@ class CanvasPawn {
         this.index = 0;
         this.angle = 0;
         // this.addEventListener('pointerDown', 'pointerDown')
+        this.imageLoaded = false;
+        this.linesWaiting = null;
 
         this.image = new Image(820, 644)
         this.image.src = 'https://matt.engageLively.com/assets/ITF/papyrus.jpg'
         this.image.crossOrigin = 'Anonymous'
-        this.image.onload = _ => this.drawBackground();
-        this.texture.needsUpdate = true;
+        this.image.onload =  _ => {
+            // flag that the image has been loaded, and if ws have lines
+            // waiting to be drawn, draw them (this will also draw the background).
+            // Otherwise just draw the background
+            this.imageLoaded = true;
+            if (this.linesWaiting) {
+                this.drawText(this.linesWaiting)
+            } else {
+                this.drawBackground();
+            }
+        }
+        // this.texture.needsUpdate = true;
     }
 
   
@@ -71,8 +83,12 @@ class CanvasPawn {
     }
 
     drawText(lines) {
-        this.drawBackground();
-        this.future(20).writeText(lines); // make sure we write the text on top of the background
+        if (this.imageLoaded){
+            this.drawBackground();
+            this.future(20).writeText(lines); // make sure we write the text on top of the background
+        } else {
+            this.linesWaiting = lines; // hold onto the lines until the image is loaded
+        }
     }
 
     writeText(lines) {

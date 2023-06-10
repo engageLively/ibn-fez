@@ -1,0 +1,1 @@
+const apiKey="1bDKDKL3mEx50nn4pFy6d86zPNpgqMKsIJC8Fd1xj",appId="com.ultisim.linda.bernard.microverse";export default{apiKey,appId};
